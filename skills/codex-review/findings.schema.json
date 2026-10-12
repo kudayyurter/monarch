@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "category", "file", "line", "endLine", "problem", "fix"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["blocking", "major", "minor"] },
+          "category": { "type": "string", "enum": ["correctness", "security", "spec-gap", "integration", "tests", "quality"] },
+          "file": { "type": "string" },
+          "line": { "type": "integer" },
+          "endLine": { "type": "integer" },
+          "problem": { "type": "string" },
+          "fix": { "type": "string" }
+        }
+      }
+    }
+  }
+}

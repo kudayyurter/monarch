@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "monarch-local",
+  "description": "Local marketplace for the monarch plugin.",
+  "owner": { "name": "namelessmonarch0" },
+  "plugins": [
+    {
+      "name": "monarch",
+      "description": "Brief-gated autonomous feature development with per-task review and dual Claude + Codex PR review.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

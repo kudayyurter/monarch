@@ -1,0 +1,3 @@
+node_modules/
+.monarch/
+tests/fixture-app/node_modules/

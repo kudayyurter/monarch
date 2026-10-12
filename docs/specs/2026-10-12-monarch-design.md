@@ -74,7 +74,7 @@ Each agent is a file in `agents/` with `model` in its frontmatter. Each definiti
 
 | Agent | Model | Effort | Input | Output (schema) |
 |---|---|---|---|---|
-| scout | Sonnet | low | request, repo | `{files: [{path, lines, why}], stack, testCmd, lintCmd, typecheckCmd, buildCmd}` |
+| scout | Sonnet | low | request, repo | `{files: [{path, lines, why}], stack, defaultBranch, installCmd, checks: {test, lint, typecheck, build}}` |
 | planner | Opus | medium | brief, context map | `{tasks: [{id, title, type, files, dependsOn, interface, acceptance, tests}], assumptions}` |
 | builder | Opus | medium | task packet | `{status: done/failed, files, testsAdded, testsRun, summary}` |
 | task-reviewer | Opus | medium | acceptance checks, task diff | `{verdict: pass/fail, findings: [{severity, file, line, problem, fix}], commit}` |
@@ -127,7 +127,7 @@ codex exec -s read-only -C <dir> \
   -o <json> "<review prompt with base and brief>"
 ```
 
-The command runs detached with its log at `.monarch/codex-review.log`. The default timeout is 900 seconds, enforced by `run.sh` itself. Because one foreground Bash call is capped at 10 minutes, `run.sh` has two modes: `run.sh start ...` launches Codex detached and prints a run id, and `run.sh wait <id> --max 540` blocks until Codex finishes or 540 seconds pass (exit 4 means still running). The bridge agent calls `start` once, then `wait` until it gets a final exit code.
+The command runs detached with its log at `.monarch/codex/<run>/log`. The default timeout is 900 seconds, enforced by `run.sh` itself. Because one foreground Bash call is capped at 10 minutes, `run.sh` has two modes: `run.sh start ...` launches Codex detached and prints a run id, and `run.sh wait <id> --max 540` blocks until Codex finishes or 540 seconds pass (exit 4 means still running). The bridge agent calls `start` once, then `wait` until it gets a final exit code.
 
 `findings.schema.json` matches the Claude finding shape (`severity`, `category`, `file`, `line`, `endLine`, `problem`, `fix`). This lets the merge step treat both sources the same way.
 
@@ -167,7 +167,6 @@ Skipped: none
   .claude-plugin/plugin.json
   .claude-plugin/marketplace.json
   commands/monarch.md
-  skills/brief/SKILL.md
   skills/codex-review/SKILL.md
   skills/codex-review/run.sh
   skills/codex-review/findings.schema.json
@@ -179,7 +178,7 @@ Skipped: none
   README.md
 ```
 
-The brief template in `skills/brief/SKILL.md` has these sections: goal, scope, non-goals, acceptance criteria (checkable), decisions, open questions. Max 300 words.
+The brief template lives inline in `commands/monarch.md` (no separate skill, to avoid an extra load). It has these sections: goal, scope, non-goals, acceptance criteria (checkable), decisions, open questions. Max 300 words.
 
 ## 10. Testing
 
