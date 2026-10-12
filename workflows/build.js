@@ -179,9 +179,11 @@ const PLAN = {
         required: ['id', 'title', 'type', 'files', 'dependsOn', 'acceptance', 'tests'],
       },
     },
+    constraints: { type: 'array', items: { type: 'string' } },
+    reviewFocus: { type: 'array', items: { type: 'string' } },
     assumptions: { type: 'array', items: { type: 'string' } },
   },
-  required: ['tasks', 'assumptions'],
+  required: ['tasks', 'constraints', 'reviewFocus', 'assumptions'],
 }
 const BUILD = {
   type: 'object',
@@ -279,6 +281,9 @@ if (planError) return { ok: false, stage: 'plan', error: planError }
 
 const tasks = plan.tasks
 const assumptions = plan.assumptions || []
+const constraints = plan.constraints || []
+const reviewFocus = plan.reviewFocus || []
+const constraintText = constraints.length ? `Constraints (exact):\n${constraints.map(c => `- ${c}`).join('\n')}` : ''
 log(`${tasks.length} task(s): ${tasks.map(t => `${t.id} ${t.title}`).join('; ')}`)
 
 // ---------- Build ----------
@@ -298,6 +303,7 @@ function builderPrompt(t, findings, round) {
     `Files you may edit: ${t.files.join(', ')}`,
     t.interface ? `Interface to provide exactly: ${t.interface}` : '',
     `Acceptance checks:\n${t.acceptance.map(a => `- ${a}`).join('\n')}`,
+    constraintText,
     `Tests: ${t.tests}`,
     deps ? `Done tasks you build on:\n${deps}` : '',
     `Context:\n${JSON.stringify(contextSlice(A.contextMap, t, tasks), null, 1)}`,
@@ -312,6 +318,7 @@ function reviewPrompt(t, files, built, finalRound) {
     `Task ${t.id}: ${t.title} (${t.type})`,
     `Task files: ${files.join(', ')}`,
     `Acceptance checks:\n${t.acceptance.map(a => `- ${a}`).join('\n')}`,
+    constraintText,
     `Tests expected: ${t.tests}`,
     `Builder says: ${built.summary}\nTests run: ${built.testsRun || '(not reported)'}`,
     finalRound ? 'FINAL ROUND: if the verdict is fail, stash the task files as instructed.' : '',
@@ -402,7 +409,12 @@ const prUrl = ship?.prUrl || ''
 
 // ---------- Review ----------
 phase('Review')
-const reviewContext = `${header}\nBrief file: ${A.briefPath}\n\nBrief:\n${A.brief}\n\nTasks:\n${tasks.map(t => `- ${t.id} ${t.title} [${status[t.id]}]`).join('\n')}`
+const reviewContext = [
+  `${header}\nBrief file: ${A.briefPath}\n\nBrief:\n${A.brief}`,
+  constraintText,
+  reviewFocus.length ? `Review focus:\n${reviewFocus.map(r => `- ${r}`).join('\n')}` : '',
+  `Tasks:\n${tasks.map(t => `- ${t.id} ${t.title} [${status[t.id]}]`).join('\n')}`,
+].filter(Boolean).join('\n\n')
 const [claudeReview, codexReview] = await parallel([
   () => call('pr-reviewer', `${reviewContext}\n\nReview git diff ${BASE}...HEAD.`, FINDINGS, 'pr-review claude', 'Review'),
   () => call('codex-bridge', `${header}\nScript: ${A.codexScript}\nBase: ${BASE}\nBrief file: ${A.briefPath}`, CODEX, 'pr-review codex', 'Review'),

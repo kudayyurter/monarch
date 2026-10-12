@@ -17,7 +17,7 @@ Goals:
 Non-goals:
 
 - Supporting harnesses other than Claude Code.
-- Replacing superpowers' debugging or skill-writing skills. They stay available if needed; monarch covers the feature-build path only.
+- Replacing superpowers' skill-writing skill. monarch ships its own short `debug` skill (`/monarch:debug`).
 - Using Haiku. Agents use Opus by default and Sonnet for small mechanical jobs only.
 
 ## 2. Decisions
@@ -70,12 +70,12 @@ Small requests: if the planner returns a single task, the flow is the same with 
 
 ## 4. Agents
 
-Each agent is a file in `agents/` with `model` in its frontmatter. Each definition is at most 300 words, written as rules.
+Each agent is a file in `agents/` with `model` in its frontmatter. Each definition is at most 500 words, written as rules. Researched rule sets (see README credits) are condensed into the prompts rather than preloaded as skills, because a preloaded skill is paid on every agent spawn.
 
 | Agent | Model | Effort | Input | Output (schema) |
 |---|---|---|---|---|
 | scout | Sonnet | low | request, repo | `{files: [{path, lines, why}], stack, defaultBranch, installCmd, checks: {test, lint, typecheck, build}}` |
-| planner | Opus | medium | brief, context map | `{tasks: [{id, title, type, files, dependsOn, interface, acceptance, tests}], assumptions}` |
+| planner | Opus | medium | brief, context map | `{tasks: [{id, title, type, files, dependsOn, interface, acceptance, tests, exclusive}], constraints, reviewFocus, assumptions}` |
 | builder | Opus | medium | task packet | `{status: done/failed, files, testsAdded, testsRun, summary}` |
 | task-reviewer | Opus | medium | acceptance checks, task diff | `{verdict: pass/fail, findings: [{severity, file, line, problem, fix}], commit}` |
 | verifier | Sonnet | low | repo check commands | `{pass, failures: [{check, shortestDecisiveLines}]}` |

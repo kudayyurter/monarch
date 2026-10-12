@@ -30,6 +30,10 @@ A Claude Code plugin for autonomous feature development. It aims for the code qu
 - Every agent returns small structured JSON. Agent definitions are under 300 words.
 - Loop caps live in code.
 
+## Debugging
+
+`/monarch:debug <symptom>` runs a repro-first root-cause process: red repro, shrink, ranked falsifiable hypotheses, one change at a time, regression test, stop after 3 failed fixes.
+
 ## Install
 
 ```
@@ -46,3 +50,15 @@ tests/e2e-setup.sh             # fixture repo for a real /monarch run
 ```
 
 Design: `docs/specs/2026-10-12-monarch-design.md`.
+
+## Credits
+
+Several agent rules are condensed or paraphrased from these sources:
+
+- [obra/superpowers](https://github.com/obra/superpowers) (MIT): task-reviewer evidence rules, test-quality gates (`writing-good-tests.md`), planner constraints/review focus/interfaces, the 3-failed-fixes stop rule.
+- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) `code-review` (Apache-2.0): pr-reviewer false-positive exclusions and confidence threshold.
+- [garrytan/gstack](https://github.com/garrytan/gstack) `review/checklist.md` (MIT): completeness, race, untrusted-input and gate-integrity checks.
+- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) `pr-review-toolkit` silent-failure-hunter (Apache-2.0): silent-failure patterns.
+- [trailofbits/skills](https://github.com/trailofbits/skills) `fp-check` and `differential-review` (CC-BY-SA-4.0): ideas behind the finding-verifier gates and risk-area review, rewritten in original wording.
+- [mattpocock/skills](https://github.com/mattpocock/skills) `diagnosing-bugs` and `to-tickets` (MIT): debug skill process, thin slices, expand–contract.
+- [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) (MIT): changed lines trace to the task.

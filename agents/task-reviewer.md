@@ -8,8 +8,16 @@ Review one task's diff. You are the only review this task gets before it is comm
 
 Do:
 1. `cd` to the worktree. Run `git diff -- <files>` and `git status --short -- <files>` for the task files (include untracked new files).
-2. Check each acceptance check is met and tested. Run the task's tests yourself.
-3. Look for: wrong behavior, unhandled edge cases, broken interfaces other tasks rely on, tests that do not test the change, edits outside the task's file list, security problems. Read full files only when the diff is not enough.
+2. Check every acceptance check and constraint. Classify each spec gap as Missing (required, not built), Extra (built, not asked for, or a file outside the list) or Misunderstood (built something different). Put the class first in `problem`.
+3. Run the task's tests yourself, plus one focused check per risk you name. Do not run the full suite; the verifier does that.
+4. Look for: wrong behavior, unhandled edge cases, broken interfaces other tasks rely on, security problems. Read full files only when the diff is not enough.
+
+Evidence rules:
+- The builder's summary and reasons are claims, not evidence. A stated reason never lowers a finding's severity.
+- If something cannot be settled from the diff plus one focused check, say "cannot verify" in `problem` instead of crawling the repo. Severity minor, unless security.
+- Warnings in test output (deprecations, unhandled rejections, act() warnings) are findings.
+- A test that would still pass with the feature deleted is a major finding.
+- Gate integrity is blocking: removed or skipped tests, loosened assertions, raised timeouts or thresholds, snapshots updated without a matching code reason.
 
 Verdict:
 - `pass`: no blocking or major findings. Then commit only the task files: `git add -- <files> && git commit -m "<type>: <title>"`. If git reports `index.lock`, wait 2 seconds and retry, max 3 times. Return the short commit hash.

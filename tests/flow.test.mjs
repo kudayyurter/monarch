@@ -41,6 +41,8 @@ const base = {
       { id: 'T1', title: 'Add mod', type: 'feat', files: ['src/mod.ts', 'test/mod.test.ts'], dependsOn: [], acceptance: ['mod(5,3) is 2'], tests: 'test/mod.test.ts' },
       { id: 'T2', title: 'Add pow', type: 'feat', files: ['src/pow.ts', 'test/pow.test.ts'], dependsOn: [], acceptance: ['pow(2,3) is 8'], tests: 'test/pow.test.ts' },
     ],
+    constraints: ["modulo by zero message is 'modulo by zero'"],
+    reviewFocus: ['T1 and T2 exports both reachable from src/calc.js (owner T2)'],
     assumptions: ['integers only'],
   }),
   builder: () => ({ status: 'done', files: [], summary: 'implemented', testsRun: 'npm test -- mod' }),
@@ -68,6 +70,9 @@ test('happy path: builds, retries a failed task review, merges dual review, fixe
   assert.deepEqual(result.review.open, [])
   assert.equal(result.review.minor, 1)
   assert.equal(result.draft, false)
+  assert.match(calls.find(c => c.label === 'build T1').prompt, /Constraints \(exact\):\n- modulo by zero message/)
+  assert.match(calls.find(c => c.label === 'review T1').prompt, /Constraints \(exact\)/)
+  assert.match(calls.find(c => c.label === 'pr-review claude').prompt, /Review focus:\n- T1 and T2 exports/)
   const rebuild = calls.find(c => c.label === 'build T2 r1')
   assert.match(rebuild.prompt, /pow ignores negative exponent/)
   const comment = calls.filter(c => c.role === 'shipper').pop().prompt
