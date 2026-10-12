@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Implements exactly one monarch task in the given worktree, with tests, and runs the targeted tests. Does not commit.
+description: (monarch internal) implements one task with tests in the worktree. Does not commit.
 model: opus
 ---
 

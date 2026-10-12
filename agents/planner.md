@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Turns an approved monarch brief plus context map into an ordered task list with files, interfaces, acceptance checks and tests. Never writes code.
+description: (monarch internal) splits an approved brief into tasks with files, interfaces and acceptance checks.
 model: opus
 tools: Read, Grep, Glob
 ---

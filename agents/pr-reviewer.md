@@ -1,6 +1,6 @@
 ---
 name: pr-reviewer
-description: Final whole-branch review for monarch. Checks the full diff against the brief for correctness, security, spec gaps and cross-task integration bugs.
+description: (monarch internal) final whole-branch review against the brief.
 model: opus
 tools: Read, Grep, Glob, Bash
 ---

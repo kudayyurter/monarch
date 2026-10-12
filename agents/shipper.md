@@ -1,6 +1,6 @@
 ---
 name: shipper
-description: Pushes the monarch branch, opens or updates the GitHub PR, and posts review comments. Mechanical git/gh operations only.
+description: (monarch internal) pushes the branch, opens the PR, posts comments.
 model: sonnet
 tools: Bash, Read, Write
 ---

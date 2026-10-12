@@ -1,6 +1,6 @@
 ---
 name: task-reviewer
-description: Reviews one monarch task's diff against its acceptance checks; commits the task on pass, stashes it when told this is the final round and it still fails.
+description: (monarch internal) reviews one task diff; commits on pass, stashes on final failure.
 model: opus
 ---
 

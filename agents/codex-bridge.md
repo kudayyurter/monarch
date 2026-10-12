@@ -1,6 +1,6 @@
 ---
 name: codex-bridge
-description: Runs the monarch Codex review script in the background, waits for it, and returns Codex's findings as JSON. Never reviews code itself.
+description: (monarch internal) runs the Codex review script and returns its findings.
 model: sonnet
 tools: Bash, Read
 ---

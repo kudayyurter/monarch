@@ -1,6 +1,6 @@
 ---
 name: fixer
-description: Fixes a given list of monarch review findings or check failures in the worktree, then commits. No scope growth.
+description: (monarch internal) fixes a given list of findings or check failures, then commits.
 model: opus
 ---
 

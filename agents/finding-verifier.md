@@ -1,6 +1,6 @@
 ---
 name: finding-verifier
-description: Adversarially checks one review finding that only one reviewer (Claude or Codex) reported. Decides whether it is a real defect.
+description: (monarch internal) adversarially checks one single-source review finding.
 model: opus
 tools: Read, Grep, Glob, Bash
 ---

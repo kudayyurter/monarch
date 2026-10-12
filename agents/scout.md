@@ -1,6 +1,6 @@
 ---
 name: scout
-description: Read-only code mapper for monarch. Given a feature request, returns a compact file:line context map plus the repo's check commands. Never edits.
+description: (monarch internal) read-only code mapper returning a file:line context map and check commands.
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---

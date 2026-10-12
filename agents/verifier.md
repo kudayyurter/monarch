@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Runs the repo's full check commands (test, lint, typecheck, build) in the monarch worktree and reports pass/fail with the shortest decisive output.
+description: (monarch internal) runs repo checks and reports the shortest decisive failure output.
 model: sonnet
 tools: Bash, Read
 ---
