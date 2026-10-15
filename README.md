@@ -6,15 +6,17 @@ A Claude Code plugin for autonomous feature development. It aims for the code qu
 
 `/monarch <what to build>`
 
+In headless mode (`claude -p`), use the full name `/monarch:monarch <what to build>`. The short form is not expanded there.
+
 1. A Sonnet **scout** maps the relevant code and the repo's check commands.
 2. The main session writes a brief of at most 300 words: goal, scope, non-goals, acceptance criteria, decisions. Questions it cannot settle from the code are asked in one batch.
 3. **You approve the brief.** This is the only gate.
 4. A deterministic Workflow (`monarch:build`) takes over in an isolated worktree on branch `monarch/<slug>`:
-   - **planner** (Opus) splits the brief into tasks, each with files, interfaces, acceptance checks and tests.
+   - **planner** (Opus) splits the brief into tasks, each with files, interfaces, acceptance checks and tests. It also lists edge cases (numeric precision, time and clocks, boundaries, invalid input, concurrency, resource growth); each one becomes an acceptance check of its task.
    - Each task gets its own **builder** (Opus) and **task-reviewer** (Opus). A failed review goes back to a fresh builder, max 2 rounds. Passed tasks are committed one commit per task. Blocked tasks are stashed and reported. Tasks that touch disjoint files run in parallel.
    - **verifier** (Sonnet) runs the full checks; **fixer** (Opus) repairs failures, max 2 rounds.
    - **shipper** (Sonnet) pushes and opens the PR (draft if checks fail).
-   - **Dual final review**: **pr-reviewer** (Opus) and **Codex CLI** review the whole PR in parallel. Findings both reported are confirmed; single-source blocking/major findings go to a **finding-verifier** (Opus). Confirmed findings are fixed, re-verified and re-checked, max 2 rounds. Results are posted as a PR comment tagged `[claude]`, `[codex]` or `[both]`.
+   - **Dual final review**: **pr-reviewer** (Opus) and **Codex CLI** review the whole PR in parallel. Findings both reported are confirmed; single-source actionable findings go to a **finding-verifier** (Opus). Actionable means blocking or major, or any correctness or security finding regardless of severity. Confirmed findings are fixed, re-verified and re-checked, max 2 rounds. Results are posted as a PR comment tagged `[claude]`, `[codex]` or `[both]`.
 5. You get a report of about 15 lines.
 
 ## Codex review on its own
@@ -48,6 +50,17 @@ claude plugin disable superpowers@claude-plugins-official   # optional, avoids i
 npm test                       # workflow helpers, simulated end-to-end flow, codex runner
 tests/e2e-setup.sh             # fixture repo for a real /monarch run
 ```
+
+## Benchmark
+
+`bench/` compares monarch, superpowers and plain Claude Code on the same tasks. Each arm runs headless on a fresh copy of `bench/fixture` (a small task API with planted bugs), with only its own plugin enabled and no MCP servers.
+
+```
+bench/run-arm.sh <ratelimit|bugfix> <monarch|superpowers|plain> <out-dir>   # one run, writes meta.json (cost, time, turns)
+bench/eval.sh <out-dir>/<task>-<arm>                                       # own tests + hidden acceptance tests, writes score.json
+```
+
+The hidden tests in `bench/hidden/` are never visible to the arms. Code quality beyond the hidden tests is judged by a blind reviewer on anonymized copies, plus a Codex review per run.
 
 Design: `docs/specs/2026-10-12-monarch-design.md`.
 

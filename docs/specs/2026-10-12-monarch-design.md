@@ -75,7 +75,7 @@ Each agent is a file in `agents/` with `model` in its frontmatter. Each definiti
 | Agent | Model | Effort | Input | Output (schema) |
 |---|---|---|---|---|
 | scout | Sonnet | low | request, repo | `{files: [{path, lines, why}], stack, defaultBranch, installCmd, checks: {test, lint, typecheck, build}}` |
-| planner | Opus | medium | brief, context map | `{tasks: [{id, title, type, files, dependsOn, interface, acceptance, tests, exclusive}], constraints, reviewFocus, assumptions}` |
+| planner | Opus | medium | brief, context map | `{tasks: [{id, title, type, files, dependsOn, interface, acceptance, tests, exclusive}], constraints, reviewFocus, edgeCases, assumptions}` |
 | builder | Opus | medium | task packet | `{status: done/failed, files, testsAdded, testsRun, summary}` |
 | task-reviewer | Opus | medium | acceptance checks, task diff | `{verdict: pass/fail, findings: [{severity, file, line, problem, fix}], commit}` |
 | verifier | Sonnet | low | repo check commands | `{pass, failures: [{check, shortestDecisiveLines}]}` |
@@ -85,7 +85,9 @@ Each agent is a file in `agents/` with `model` in its frontmatter. Each definiti
 | finding-verifier | Opus | high | one finding, relevant code | `{real: bool, reason}` |
 | codex-bridge | Sonnet | low | worktree path, base, brief | `{ran: bool, skippedReason, findings: [...]}` |
 
-Severity values: `blocking`, `major`, `minor`. Only `blocking` and `major` findings trigger fix rounds. `minor` findings are listed in the PR comment and report.
+Severity values: `blocking`, `major`, `minor`. A finding is actionable, and triggers a fix round, when it is `blocking` or `major`, or when its category is `correctness` or `security` at any severity (except "cannot verify" notes). Other `minor` findings are listed in the PR comment and report.
+
+The planner also returns `edgeCases` (`{task, case, expected}`) from a fixed checklist: numeric precision, time and clocks, boundaries, invalid input, ordering and concurrency, resource growth. `build.js` appends each one to its task's acceptance checks and passes the full list to the PR reviewer. This rule came from a benchmark where a float-drift bug was rated minor and shipped unfixed.
 
 Category values (used for dedup): `correctness`, `security`, `spec-gap`, `integration`, `tests`, `quality`.
 

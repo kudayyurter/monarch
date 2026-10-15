@@ -1,6 +1,6 @@
 {
   "name": "monarch",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Token-lean autonomous feature development: one approved brief, then per-task subagents with review, verification, PR, and a dual Claude + Codex final review.",
   "author": { "name": "kudayyurter" }
 }

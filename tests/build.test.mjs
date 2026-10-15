@@ -11,7 +11,7 @@ const src = readFileSync(join(root, 'workflows/build.js'), 'utf8')
 
 const pure = src.slice(src.indexOf('// <pure>'), src.indexOf('// </pure>'))
 const names = ['isActionable', 'maxSeverity', 'rangesOverlap', 'sameIssue', 'mergeFindings', 'validatePlan',
-  'readyTasks', 'propagateSkips', 'contextSlice', 'findingLine', 'formatReviewComment']
+  'withEdgeCases', 'readyTasks', 'propagateSkips', 'contextSlice', 'findingLine', 'formatReviewComment']
 const H = new Function(`${pure}\nreturn { ${names.join(', ')} }`)()
 
 const f = (o) => ({ severity: 'major', category: 'correctness', file: 'a.ts', line: 10, endLine: 12, problem: 'p', fix: 'x', ...o })
@@ -50,6 +50,26 @@ test('mergeFindings matches each codex finding at most once', () => {
 test('mergeFindings handles empty inputs', () => {
   assert.deepEqual(H.mergeFindings([], []), [])
   assert.equal(H.mergeFindings([], [f({})])[0].source, 'codex')
+})
+
+test('isActionable: blocking/major always, minor only for correctness or security', () => {
+  assert.ok(H.isActionable(f({ severity: 'blocking', category: 'quality' })))
+  assert.ok(H.isActionable(f({ severity: 'major', category: 'tests' })))
+  assert.ok(H.isActionable(f({ severity: 'minor', category: 'correctness' })))
+  assert.ok(H.isActionable(f({ severity: 'minor', category: 'security' })))
+  assert.ok(!H.isActionable(f({ severity: 'minor', category: 'quality' })))
+  assert.ok(!H.isActionable(f({ severity: 'minor', category: undefined })))
+  assert.ok(!H.isActionable(f({ severity: 'minor', category: 'correctness', problem: 'Cannot verify whether x' })))
+  assert.ok(!H.isActionable(null))
+})
+
+test('withEdgeCases appends edge cases to the owning task only', () => {
+  const ts = [{ id: 'T1', acceptance: ['a'] }, { id: 'T2', acceptance: ['b'] }]
+  const out = H.withEdgeCases(ts, [{ task: 'T1', case: 'clock goes backwards', expected: 'no refill, no lockout' }, { task: 'T9', case: 'x', expected: 'y' }])
+  assert.deepEqual(out[0].acceptance, ['a', 'Edge case: clock goes backwards. Expected: no refill, no lockout'])
+  assert.equal(out[1], ts[1])
+  assert.deepEqual(ts[0].acceptance, ['a'], 'input not mutated')
+  assert.deepEqual(H.withEdgeCases(ts, undefined), ts)
 })
 
 test('rangesOverlap uses slack and missing endLine', () => {

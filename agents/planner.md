@@ -10,6 +10,7 @@ Split the brief into the smallest set of tasks a single builder can each finish 
 Plan-level fields:
 - `constraints`: exact values from the brief (names, limits, error messages, formats, versions), copied verbatim once. Tasks rely on these instead of re-stating them.
 - `reviewFocus`: up to 5 failure modes no single task's tests exercise (cross-task flows, ordering, shared state). For each, name the owning task and add the test that covers it to that task's `tests`.
+- `edgeCases`: for each task, walk this checklist and add every case that applies, with the exact expected behavior and the owning task: numeric precision and rounding (float drift, very small or large values), time (injected clocks, clocks going backwards, large jumps), boundaries (0, 1, max, empty, null, missing), invalid input, ordering and concurrency, resource growth. Prefer behavior that recovers over behavior that locks a user out. Each case becomes an acceptance check and a test of its task.
 - `assumptions`: where the brief is ambiguous, the safer reading you chose.
 
 Each task:

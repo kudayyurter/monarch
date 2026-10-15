@@ -15,8 +15,14 @@ export const meta = {
 const MAX_FIX_ROUNDS = 2
 const SEVERITY_RANK = { minor: 0, major: 1, blocking: 2 }
 
+// Blocking and major findings always get fixed. Correctness and security findings get fixed at any
+// severity, except "cannot verify" notes, which stay informational.
+const ALWAYS_FIX = new Set(['correctness', 'security'])
+
 function isActionable(f) {
-  return f && (f.severity === 'blocking' || f.severity === 'major')
+  if (!f) return false
+  if (f.severity === 'blocking' || f.severity === 'major') return true
+  return ALWAYS_FIX.has(f.category) && !/^cannot verify/i.test(f.problem || '')
 }
 
 function maxSeverity(a, b) {
@@ -73,6 +79,14 @@ function validatePlan(tasks) {
   }
   for (const t of tasks) { const e = visit(t.id); if (e) return e }
   return null
+}
+
+// Fold the planner's edge cases into the owning task's acceptance checks, so builder and reviewer both see them.
+function withEdgeCases(tasks, edgeCases) {
+  return tasks.map(t => {
+    const extra = (edgeCases || []).filter(e => e.task === t.id).map(e => `Edge case: ${e.case}. Expected: ${e.expected}`)
+    return extra.length ? { ...t, acceptance: [...(t.acceptance || []), ...extra] } : t
+  })
 }
 
 // Tasks that may start now: pending, all deps done, no file overlap with running tasks,
@@ -181,9 +195,17 @@ const PLAN = {
     },
     constraints: { type: 'array', items: { type: 'string' } },
     reviewFocus: { type: 'array', items: { type: 'string' } },
+    edgeCases: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { task: { type: 'string' }, case: { type: 'string' }, expected: { type: 'string' } },
+        required: ['task', 'case', 'expected'],
+      },
+    },
     assumptions: { type: 'array', items: { type: 'string' } },
   },
-  required: ['tasks', 'constraints', 'reviewFocus', 'assumptions'],
+  required: ['tasks', 'constraints', 'reviewFocus', 'edgeCases', 'assumptions'],
 }
 const BUILD = {
   type: 'object',
@@ -279,7 +301,8 @@ if (planError && plan) {
 }
 if (planError) return { ok: false, stage: 'plan', error: planError }
 
-const tasks = plan.tasks
+const edgeCases = plan.edgeCases || []
+const tasks = withEdgeCases(plan.tasks, edgeCases)
 const assumptions = plan.assumptions || []
 const constraints = plan.constraints || []
 const reviewFocus = plan.reviewFocus || []
@@ -413,6 +436,7 @@ const reviewContext = [
   `${header}\nBrief file: ${A.briefPath}\n\nBrief:\n${A.brief}`,
   constraintText,
   reviewFocus.length ? `Review focus:\n${reviewFocus.map(r => `- ${r}`).join('\n')}` : '',
+  edgeCases.length ? `Edge cases the plan committed to (each must be handled and tested):\n${edgeCases.map(e => `- ${e.task}: ${e.case}. Expected: ${e.expected}`).join('\n')}` : '',
   `Tasks:\n${tasks.map(t => `- ${t.id} ${t.title} [${status[t.id]}]`).join('\n')}`,
 ].filter(Boolean).join('\n\n')
 const [claudeReview, codexReview] = await parallel([
@@ -444,7 +468,7 @@ for (let round = 1; round <= MAX_FIX_ROUNDS && open.length > 0; round++) {
   const fix = await call('fixer', `${header}\nFix these review findings:\n${open.map(findingLine).join('\n')}\n\nCheck commands:\n${checkList}`, FIX, `fix review r${round}`, 'Review')
   checks = await verifyLoop('Review')
   const recheck = await call('pr-reviewer',
-    `${reviewContext}\n\nRe-check only. These findings were just addressed (fixer said: ${fix?.summary || 'n/a'}).\nReturn findings that are still unresolved, plus any blocking/major problem the fix introduced. Empty list if all resolved.\n${open.map(findingLine).join('\n')}`,
+    `${reviewContext}\n\nRe-check only. These findings were just addressed (fixer said: ${fix?.summary || 'n/a'}).\nReturn findings that are still unresolved, plus any blocking/major or correctness/security problem the fix introduced. Empty list if all resolved.\n${open.map(findingLine).join('\n')}`,
     FINDINGS, `recheck r${round}`, 'Review')
   const still = (recheck?.findings || []).filter(isActionable)
   for (const f of open) if (!still.some(s => s.file === f.file && rangesOverlap(s, f, 3))) fixedFindings.push({ ...f, status: 'fixed' })

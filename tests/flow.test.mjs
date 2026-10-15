@@ -43,6 +43,7 @@ const base = {
     ],
     constraints: ["modulo by zero message is 'modulo by zero'"],
     reviewFocus: ['T1 and T2 exports both reachable from src/calc.js (owner T2)'],
+    edgeCases: [{ task: 'T2', case: 'pow(2, 0.5) with float result', expected: 'returns Math.SQRT2 within 1e-12' }],
     assumptions: ['integers only'],
   }),
   builder: () => ({ status: 'done', files: [], summary: 'implemented', testsRun: 'npm test -- mod' }),
@@ -73,6 +74,10 @@ test('happy path: builds, retries a failed task review, merges dual review, fixe
   assert.match(calls.find(c => c.label === 'build T1').prompt, /Constraints \(exact\):\n- modulo by zero message/)
   assert.match(calls.find(c => c.label === 'review T1').prompt, /Constraints \(exact\)/)
   assert.match(calls.find(c => c.label === 'pr-review claude').prompt, /Review focus:\n- T1 and T2 exports/)
+  assert.match(calls.find(c => c.label === 'build T2').prompt, /- Edge case: pow\(2, 0\.5\) with float result\. Expected: returns Math\.SQRT2/)
+  assert.match(calls.find(c => c.label === 'review T2').prompt, /Edge case: pow/)
+  assert.doesNotMatch(calls.find(c => c.label === 'build T1').prompt, /Edge case/)
+  assert.match(calls.find(c => c.label === 'pr-review claude').prompt, /Edge cases the plan committed to.*:\n- T2: pow\(2, 0\.5\)/)
   const rebuild = calls.find(c => c.label === 'build T2 r1')
   assert.match(rebuild.prompt, /pow ignores negative exponent/)
   const comment = calls.filter(c => c.role === 'shipper').pop().prompt

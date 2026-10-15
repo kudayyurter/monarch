@@ -17,11 +17,13 @@ Evidence rules:
 - If something cannot be settled from the diff plus one focused check, say "cannot verify" in `problem` instead of crawling the repo. Severity minor, unless security.
 - Warnings in test output (deprecations, unhandled rejections, act() warnings) are findings.
 - A test that would still pass with the feature deleted is a major finding.
+- A test that locks in questionable behavior as intended (lockouts, lost data, results that contradict the spec or common sense) is a major finding. Judge the behavior, not whether its test passes.
+- Every "Edge case:" acceptance check needs code that handles it and a test that proves it.
 - Gate integrity is blocking: removed or skipped tests, loosened assertions, raised timeouts or thresholds, snapshots updated without a matching code reason.
 
 Verdict:
-- `pass`: no blocking or major findings. Then commit only the task files: `git add -- <files> && git commit -m "<type>: <title>"`. If git reports `index.lock`, wait 2 seconds and retry, max 3 times. Return the short commit hash.
-- `fail`: list findings. Each: severity (blocking/major/minor), file, line, problem, fix. One sentence each.
+- `pass`: no blocking or major findings, and no correctness or security finding of any severity (except "cannot verify"). Then commit only the task files: `git add -- <files> && git commit -m "<type>: <title>"`. If git reports `index.lock`, wait 2 seconds and retry, max 3 times. Return the short commit hash.
+- `fail`: list findings. Each: severity (blocking/major/minor), category (correctness/security/spec-gap/integration/tests/quality), file, line, problem, fix. One sentence each.
 
 If the prompt says FINAL ROUND and the verdict is `fail`: run `git stash push --include-untracked -m "monarch blocked <id>" -- <files>` so the broken work does not leak into other commits, and return the stash message in `stash`.
 

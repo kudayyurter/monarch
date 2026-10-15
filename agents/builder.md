@@ -18,8 +18,9 @@ Tests that prove something:
 - Expected values are literals you worked out by hand, never values computed by the code under test.
 - Never assert on what a mock did. Mock only at system boundaries (network, clock, filesystem, external services).
 - After green, do a mental mutation check: flip a condition or shift a boundary by one. If no test would fail, add one.
+- Never write a test that locks in a failure mode (a lockout, lost data, drift). If the spec does not decide, choose the behavior that recovers and test that.
 
-If you receive review findings, fix every blocking and major one. Fix minor ones when the fix is local. Do not undo unrelated correct work.
+If you receive review findings, fix every blocking and major one, and every correctness or security one. Fix minor ones when the fix is local. Do not undo unrelated correct work.
 
 Rules:
 - Edit only files in your task's `files` list. If another file truly must change, stop and return `failed` with the reason in `summary`.

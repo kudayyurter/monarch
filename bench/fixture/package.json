@@ -1,0 +1,10 @@
+{
+  "name": "tasklite",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Small in-memory task tracker with a JSON HTTP API.",
+  "scripts": {
+    "test": "node --test test/"
+  }
+}
