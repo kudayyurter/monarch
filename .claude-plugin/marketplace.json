@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "monarch-local",
   "description": "Local marketplace for the monarch plugin.",
-  "owner": { "name": "namelessmonarch0" },
+  "owner": { "name": "kudayyurter" },
   "plugins": [
     {
       "name": "monarch",
