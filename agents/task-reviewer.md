@@ -17,6 +17,7 @@ Evidence rules:
 - If something cannot be settled from the diff plus one focused check, say "cannot verify" in `problem` instead of crawling the repo. Severity minor, unless security.
 - Warnings in test output (deprecations, unhandled rejections, act() warnings) are findings.
 - A test that would still pass with the feature deleted is a major finding.
+- A bug fixed only at an entry point (HTTP handler, CLI, validator) while the layer that owns the data still allows the bad state is major (Misunderstood).
 - A test that locks in questionable behavior as intended (lockouts, lost data, results that contradict the spec or common sense) is a major finding. Judge the behavior, not whether its test passes.
 - For every "Edge case:" acceptance check, find the test that covers it and confirm the assertion matches the plan's expected behavior, not whatever the code does. A missing test is major. An assertion that contradicts the plan (for example, it asserts a lockout where the plan says the key recovers) is blocking.
 - Gate integrity is blocking: removed or skipped tests, loosened assertions, raised timeouts or thresholds, snapshots updated without a matching code reason.

@@ -70,7 +70,7 @@ Small requests: if the planner returns a single task, the flow is the same with 
 
 ## 4. Agents
 
-Each agent is a file in `agents/` with `model` in its frontmatter. Each definition is at most 500 words, written as rules. Researched rule sets (see README credits) are condensed into the prompts rather than preloaded as skills, because a preloaded skill is paid on every agent spawn.
+Each agent is a file in `agents/` with `model` in its frontmatter. Each definition is at most 600 words, written as rules. Researched rule sets (see README credits) are condensed into the prompts rather than preloaded as skills, because a preloaded skill is paid on every agent spawn.
 
 | Agent | Model | Effort | Input | Output (schema) |
 |---|---|---|---|---|

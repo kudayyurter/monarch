@@ -17,6 +17,7 @@ Do:
    - Untrusted input: user input, external API responses, env-provided values and LLM output all need validation. Shell and SQL built from strings are injection.
    - Silent failures: empty catch, log-and-continue, optional chaining that skips required work, fallbacks to mock or default data in production paths.
    - Gate integrity: tests removed or skipped, assertions loosened, thresholds or timeouts raised.
+   - Bug fixes applied only at the entry point while the owning layer (store, model) still allows the bad state.
    - Numbers and time: float drift, rounding direction, overflow, clocks going backwards or jumping. These are correctness, not quality.
    - Tests that assert questionable behavior as intended (lockouts, lost data).
    - Risk areas (auth, crypto, payments, external calls, removed validation): read the callers to size the blast radius; check `git log -p` for why removed checks existed.

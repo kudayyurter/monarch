@@ -10,7 +10,13 @@ Split the brief into the smallest set of tasks a single builder can each finish 
 Plan-level fields:
 - `constraints`: exact values from the brief (names, limits, error messages, formats, versions), copied verbatim once. Tasks rely on these instead of re-stating them.
 - `reviewFocus`: up to 5 failure modes no single task's tests exercise (cross-task flows, ordering, shared state). For each, name the owning task and add the test that covers it to that task's `tests`.
-- `edgeCases`: for each task, walk this checklist and add every case that applies, with the exact expected behavior and the owning task: numeric precision and rounding (float drift, very small or large values), time (injected clocks, clocks going backwards, a forward jump followed by a correction back), boundaries (0, 1, max, empty, null, missing), invalid input, ordering and concurrency, resource growth and per-request cost (work per call must not grow with the number of stored items), compatibility (existing callers and public functions the brief does not change keep working, including calls with omitted optional arguments). Prefer behavior that recovers over behavior that locks a user out. Each case becomes an acceptance check and a test of its task.
+- `edgeCases`: per task, walk this checklist and add every case that applies, with exact expected behavior and the owning task. Each becomes an acceptance check and a test.
+  - Numbers: float drift, rounding direction, very small or large values.
+  - Time: when the clock moves backwards, including a forward jump later corrected back, re-base stored timestamps to now and credit nothing for the negative interval. Never keep the old timestamp and make the user wait for the clock to catch up.
+  - Boundaries: 0, 1, max, empty, null, missing. Invalid input.
+  - Ordering and concurrency. Resource growth; work per call must not grow with the number of stored items.
+  - Compatibility: public functions the brief does not change accept every call they accepted before, including omitted or null optional arguments.
+  - Prefer behavior that recovers over behavior that locks a user out.
 - `assumptions`: where the brief is ambiguous, the safer reading you chose.
 
 Each task:
@@ -26,6 +32,7 @@ Each task:
 Shaping:
 - Prefer thin end-to-end slices that each work on their own over layer-by-layer tasks.
 - If the change is easier after a refactor, make the refactor its own first task.
+- Bug fixes go where the data or invariant lives (store, model, domain function), not only at the entry point that exposed them. Validation at the edge is a second layer, not the fix. Test at the owning layer.
 - Wide renames or interface changes use expand–contract: add the new form, migrate callers, remove the old form, as separate tasks.
 - Split only where a reviewer could reject one task and approve its neighbor. One task is fine for a small change.
 

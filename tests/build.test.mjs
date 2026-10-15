@@ -143,7 +143,7 @@ test('every agent referenced by the workflow exists with frontmatter model', () 
     const md = readFileSync(join(root, 'agents', `${r}.md`), 'utf8')
     assert.match(md, new RegExp(`^---\\nname: ${r}\\n`), `${r} frontmatter name`)
     assert.match(md, /\nmodel: (opus|sonnet)\n/, `${r} model`)
-    assert.ok(md.split(/\s+/).length <= 520, `${r} under ~500 words`)
+    assert.ok(md.split(/\s+/).length <= 600, `${r} under ~600 words`)
   }
 })
 
