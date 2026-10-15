@@ -12,7 +12,7 @@ In headless mode (`claude -p`), use the full name `/monarch:monarch <what to bui
 2. The main session writes a brief of at most 300 words: goal, scope, non-goals, acceptance criteria, decisions. Questions it cannot settle from the code are asked in one batch.
 3. **You approve the brief.** This is the only gate.
 4. A deterministic Workflow (`monarch:build`) takes over in an isolated worktree on branch `monarch/<slug>`:
-   - **planner** (Opus) splits the brief into tasks, each with files, interfaces, acceptance checks and tests. It also lists edge cases (numeric precision, time and clocks, boundaries, invalid input, concurrency, resource growth); each one becomes an acceptance check of its task.
+   - **planner** (Opus) splits the brief into tasks, each with files, interfaces, acceptance checks and tests. It also lists edge cases (numeric precision, time and clocks, boundaries, invalid input, concurrency, resource growth, compatibility with existing callers); each one becomes an acceptance check of its task.
    - Each task gets its own **builder** (Opus) and **task-reviewer** (Opus). A failed review goes back to a fresh builder, max 2 rounds. Passed tasks are committed one commit per task. Blocked tasks are stashed and reported. Tasks that touch disjoint files run in parallel.
    - **verifier** (Sonnet) runs the full checks; **fixer** (Opus) repairs failures, max 2 rounds.
    - **shipper** (Sonnet) pushes and opens the PR (draft if checks fail).

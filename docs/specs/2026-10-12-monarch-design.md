@@ -87,7 +87,7 @@ Each agent is a file in `agents/` with `model` in its frontmatter. Each definiti
 
 Severity values: `blocking`, `major`, `minor`. A finding is actionable, and triggers a fix round, when it is `blocking` or `major`, or when its category is `correctness` or `security` at any severity (except "cannot verify" notes). Other `minor` findings are listed in the PR comment and report.
 
-The planner also returns `edgeCases` (`{task, case, expected}`) from a fixed checklist: numeric precision, time and clocks, boundaries, invalid input, ordering and concurrency, resource growth. `build.js` appends each one to its task's acceptance checks and passes the full list to the PR reviewer. This rule came from a benchmark where a float-drift bug was rated minor and shipped unfixed.
+The planner also returns `edgeCases` (`{task, case, expected}`) from a fixed checklist: numeric precision, time and clocks, boundaries, invalid input, ordering and concurrency, resource growth, compatibility with existing callers. `build.js` appends each one to its task's acceptance checks and passes the full list to the PR reviewer. This rule came from a benchmark where a float-drift bug was rated minor and shipped unfixed.
 
 Category values (used for dedup): `correctness`, `security`, `spec-gap`, `integration`, `tests`, `quality`.
 

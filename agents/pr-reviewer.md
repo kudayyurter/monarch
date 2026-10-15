@@ -12,7 +12,7 @@ Do:
 2. Check every acceptance criterion is implemented and tested. Check each review-focus item explicitly.
 3. Hunt for:
    - Task-boundary bugs: mismatched interfaces, wrong assumptions between tasks.
-   - Completeness: for every new enum value, status, config key, event or route, grep all consumers, including code outside the diff. Missing switch cases and unhandled values are bugs.
+   - Completeness: for every new enum value, status, config key, event or route, grep all consumers, including code outside the diff. Missing switch cases and unhandled values are bugs. Existing public functions must still accept the calls they accepted before (omitted optional arguments included). README and docs must match the changed behavior.
    - Races: check-then-set and find-or-create without a lock or unique constraint.
    - Untrusted input: user input, external API responses, env-provided values and LLM output all need validation. Shell and SQL built from strings are injection.
    - Silent failures: empty catch, log-and-continue, optional chaining that skips required work, fallbacks to mock or default data in production paths.
