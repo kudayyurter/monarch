@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Runs one benchmark arm headless on a fresh copy of the fixture.
-# Usage: bench/run-arm.sh <task: ratelimit|bugfix> <arm: monarch|superpowers|plain> <out-root>
-# Writes <out-root>/<task>-<arm>/{repo/, turn-N.json, meta.json}.
+# Usage: bench/run-arm.sh <task: ratelimit|bugfix> <arm: monarch|superpowers|plain> <out-root> [run-tag]
+# Writes <out-root>/<task>-<arm>[-<run-tag>]/{repo/, turn-N.json, meta.json}.
 set -uo pipefail
-TASK="$1" ARM="$2" OUT="$3"
+TASK="$1" ARM="$2" OUT="$3" TAG="${4:-}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DIR="$OUT/$TASK-$ARM"
+DIR="$OUT/$TASK-$ARM${TAG:+-$TAG}"
 rm -rf "$DIR" && mkdir -p "$DIR"
 cp -R "$HERE/fixture" "$DIR/repo"
 cd "$DIR/repo"
@@ -63,4 +63,4 @@ jq -s --arg arm "$ARM" --arg task "$TASK" --argjson secs $((END - START)) --argj
     inputTokens: (map(.modelUsage // {} | to_entries | map((.value.inputTokens // 0) + (.value.cacheReadInputTokens // 0) + (.value.cacheCreationInputTokens // 0)) | add // 0) | add),
     byModel: (map(.modelUsage // {} | to_entries) | flatten | group_by(.key) | map({ key: .[0].key, value: { out: (map(.value.outputTokens // 0) | add), costUsd: (map(.value.costUSD // 0) | add) } }) | from_entries),
     errors: map(select(.is_error == true) | .result) }' "$DIR"/turn-*.json > "$DIR/meta.json"
-echo "done $TASK-$ARM: $(jq -c '{wallSeconds, userTurns, costUsd}' "$DIR/meta.json")"
+echo "done $TASK-$ARM${TAG:+-$TAG}: $(jq -c '{wallSeconds, userTurns, costUsd}' "$DIR/meta.json")"

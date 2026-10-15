@@ -18,7 +18,7 @@ Tests that prove something:
 - Expected values are literals you worked out by hand, never values computed by the code under test.
 - Never assert on what a mock did. Mock only at system boundaries (network, clock, filesystem, external services).
 - After green, do a mental mutation check: flip a condition or shift a boundary by one. If no test would fail, add one.
-- Time, rate or money math: guard against float drift (snap values within 1e-9 of a whole number, or use integers), keep outputs finite and in range (cap huge values), and test exact boundaries.
+- Time, rate or money math: use exact arithmetic (integer units such as milli-tokens or cents, or values recomputed from stored timestamps) instead of accumulating floats or rounding them away. Keep outputs finite and in range. Test exact boundaries and awkward values (rates like 1/3, 0.1 and 1e-7).
 - Never write a test that locks in a failure mode (a lockout, lost data, drift). If the spec does not decide, choose the behavior that recovers and test that.
 
 If you receive review findings, fix every blocking and major one, and every correctness or security one. Fix minor ones when the fix is local. Do not undo unrelated correct work.

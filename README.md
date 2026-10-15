@@ -56,7 +56,7 @@ tests/e2e-setup.sh             # fixture repo for a real /monarch run
 `bench/` compares monarch, superpowers and plain Claude Code on the same tasks. Each arm runs headless on a fresh copy of `bench/fixture` (a small task API with planted bugs), with only its own plugin enabled and no MCP servers.
 
 ```
-bench/run-arm.sh <ratelimit|bugfix> <monarch|superpowers|plain> <out-dir>   # one run, writes meta.json (cost, time, turns)
+bench/run-arm.sh <ratelimit|bugfix> <monarch|superpowers|plain> <out-dir> [tag]   # one run, writes meta.json (cost, time, turns)
 bench/eval.sh <out-dir>/<task>-<arm>                                       # own tests + hidden acceptance tests, writes score.json
 ```
 
